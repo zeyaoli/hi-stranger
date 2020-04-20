@@ -154,6 +154,18 @@ io.sockets.on('connection', (socket) => {
 			queue2.push(queue[i]);
 		}
 
+		for (let i in queue) {
+			let visualizeDataOne = [ queue.length, i ];
+			queue[i].emit('myPositionOne', visualizeDataOne);
+		}
+		io.sockets.emit('currentIndexOne', 0);
+
+		for (let i in queue2) {
+			let visualizeDataTwo = [ queue.length, i ];
+			queue2[i].emit('myPositionTwo', visualizeDataTwo);
+		}
+		io.sockets.emit('currentIndexTwo', 0);
+
 		console.log(`First queue is ${queue[0].id}`);
 		console.log(`Second queue is ${queue2[0].id}`);
 
@@ -184,6 +196,8 @@ io.sockets.on('connection', (socket) => {
 
 		next(true);
 
+		io.sockets.emit('currentIndexOne', q);
+
 		current.emit('message', answer);
 		current.emit('go');
 	});
@@ -197,11 +211,13 @@ io.sockets.on('connection', (socket) => {
 
 		next2(true);
 
+		io.sockets.emit('currentIndexTwo', q2);
+
 		current2.emit('messageTwo', answer);
 		current2.emit('goTwo');
 	});
 
-	socket.on('remove', function() {
+	socket.on('disconnect', function() {
 		console.log('Client has disconnected' + socket.id);
 
 		io.sockets.emit('disconnected', socket.id);
@@ -221,6 +237,18 @@ io.sockets.on('connection', (socket) => {
 				if (socket === current2) next2(false);
 			}
 		}
+
+		// for (let i in queue) {
+		// 	let visualizeDataOne = [ queue.length, i ];
+		// 	queue[i].emit('myPositionOne', visualizeDataOne);
+		// }
+		// io.sockets.emit('currentIndexOne', q);
+
+		// for (let i in queue2) {
+		// 	let visualizeDataTwo = [ queue.length, i ];
+		// 	queue2[i].emit('myPositionTwo', visualizeDataTwo);
+		// }
+		// io.sockets.emit('currentIndexTwo', q);
 	});
 });
 

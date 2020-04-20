@@ -1,5 +1,5 @@
 function Title() {
-	return `<h1> Hello Stranger </h1>`;
+	return `<h1> Hi Stranger </h1>`;
 }
 
 function FrontPage() {
