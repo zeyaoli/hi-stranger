@@ -1,0 +1,31 @@
+<!-- This is a static file -->
+<!-- served from your routes in server.js -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>hi stranger</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="keep the conversation flowing" />
+    <link
+      id="favicon"
+      rel="icon"
+      href="https://glitch.com/edit/favicon-app.ico"
+      type="image/x-icon"
+    />
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- add socket.io -->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    <!-- import the webpage's client-side javascript file -->
+    <script src="/components.js"></script>
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
