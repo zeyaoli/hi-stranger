@@ -162,19 +162,6 @@ socket.on('message', function(answer) {
 
 		socket.emit('message', answer);
 
-		socket.on('allMessages', (data) => {
-			prevOne.innerHTML = '';
-
-			for (let index in data) {
-				let element = data[index];
-				if (index % 2 == 0) {
-					prevOne.innerHTML += `<p class = "evenMsgs"> ${element} </p>`;
-				} else {
-					prevOne.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
-				}
-			}
-		});
-
 		return false;
 	});
 });
@@ -196,21 +183,34 @@ socket.on('messageTwo', function(answer) {
 
 		socket.emit('messageTwo', answer2);
 
-		socket.on('allMessages2', (data) => {
-			prevTwo.innerHTML = '';
-
-			for (let index in data) {
-				let element = data[index];
-				if (index % 2 == 0) {
-					prevTwo.innerHTML += `<p class = "evenMsgs"> ${element} </p>`;
-				} else {
-					prevTwo.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
-				}
-			}
-		});
-
 		return false;
 	});
+});
+
+socket.on('allMessages', (data) => {
+	prevOne.innerHTML = '';
+
+	for (let index in data) {
+		let element = data[index];
+		if (index % 2 == 0) {
+			prevOne.innerHTML += `<p class = "evenMsgs"> ${element} </p>`;
+		} else {
+			prevOne.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
+		}
+	}
+});
+
+socket.on('allMessages2', (data) => {
+	prevTwo.innerHTML = '';
+
+	for (let index in data) {
+		let element = data[index];
+		if (index % 2 == 0) {
+			prevTwo.innerHTML += `<p class = "evenMsgs"> ${element} </p>`;
+		} else {
+			prevTwo.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
+		}
+	}
 });
 
 socket.on('go', function() {

@@ -1,67 +1,16 @@
-// use import/require to include the db js file
-//const db = require("db.js")
-// in another file -> module.exports{}
 const port = process.env.PORT || 8000;
 const express = require('express');
 const app = express();
 
-// most of the code below here until io are database, will leave this comment before i clean up the code!
-
 const path = require('path');
-const fs = require('fs');
-const mongoose = require('mongoose');
 
 const viewsURL = path.resolve(`${__dirname}/public`);
 
-require('dotenv').config({ path: '.env' });
+const database = require('./db.js');
 
-mongoose.connect(
-	'mongodb+srv://admin:SIB!crip7flis@hi-strangers-db-mzlay.gcp.mongodb.net/test?retryWrites=true&w=majority',
-	{ useNewUrlParser: true }
-);
+const { prompts, prompts2 } = require('./prompts.js');
 
-const db = mongoose.connection;
-db.on = ('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {
-	console.log('connected to database');
-});
-
-const ConversationSchema = mongoose.Schema({
-	time          : { type: Date, default: Date.now },
-	conversations : [ String ]
-});
-
-const Conversation = mongoose.model('Conversation', ConversationSchema);
-
-const handleError = (err) => {
-	console.log(err);
-};
-
-const getConversation = (cb) => {
-	Conversation.find().exec((err, docs) => {
-		cb(err, docs);
-	});
-};
-
-const saveConversation = (messages) => {
-	let conversationObject = {
-		conversations : messages
-	};
-
-	Conversation.create(conversationObject, function(err, newConversation) {
-		if (err) return handleError(err);
-	});
-};
-
-// const deleteById = (id, cb) => {
-// 	Conversation.findByIdAndDelete(id, (err, deletedObject) => {
-// 		cb(err, deletedObject);
-// 	});
-// };
-
-// const database = require('db.js');
-
-app.use(express.static('public'));
+app.use(express.static(viewsURL));
 app.use(express.json());
 
 app.get('/', (request, response) => {
@@ -69,7 +18,7 @@ app.get('/', (request, response) => {
 });
 
 app.get('/find', (req, res) => {
-	getConversation((err, docs) => {
+	database.getConversation((err, docs) => {
 		res.json(docs);
 	});
 });
@@ -77,21 +26,14 @@ app.get('/find', (req, res) => {
 app.delete('/find/:id', (req, res) => {
 	const id = req.params.id;
 
-	Conversation.findByIdAndDelete(id, (err, deletedObject) => {
+	database.deleteById(id, (err, deletedObject) => {
 		res.json({ deletedObject: deletedObject });
 	});
-
-	// deleteById(id, (err, deletedObject) => {
-	// 	res.json({ deletedObject: deletedObject });
-	// });
 });
 
-// listen for requests :)
 const server = require('http').createServer(app).listen(port, () => {
 	console.log(`Your app is listening on port ${port}`);
 });
-
-// io thing all goes here!!!!!!!!!!
 
 const io = require('socket.io').listen(server);
 
@@ -103,25 +45,6 @@ let current = -1;
 let queue2 = [];
 let q2 = -1;
 let current2 = -1;
-
-//two prompts has to be different
-const prompts = [
-	'You are feeling so blue right now and you need someone to comfort you',
-	'You are mad at your parents but you can not argue with them. Now, you want to express your feeling with someone on the internet.',
-	'You are extremely home sick at this moment and you need to share this feeling with someone',
-	'You got selected to be a part of your dream project. You extremely want to tell the world about it',
-	'You are stuck in a building, the only thing you can do is to sending one sentence for someone to rescue you',
-	'You found a wallet with a lot of money in it. You want to tell your friend about that'
-];
-
-const prompts2 = [
-	'You are so annoy about your mournful friend who express everything with you and you want to gossip with others',
-	'You are worried about your child (?)',
-	'You wish you could leave your home and explore the world.',
-	'You missed out on another job that you wanted. You are complaining about it to a friend.',
-	'You received a strange call asking you to rescue them',
-	'You lost you wallet with your rent in it. You want someone to help you find it'
-];
 
 const randomIndex = Math.floor(Math.random() * prompts.length);
 
@@ -185,8 +108,6 @@ io.sockets.on('connection', (socket) => {
 		}
 	});
 
-	//socket.emit("position", queue.length - 1);
-
 	socket.on('message', (answer) => {
 		// console.log(answer);
 		allMessages.push(answer);
@@ -237,33 +158,19 @@ io.sockets.on('connection', (socket) => {
 				if (socket === current2) next2(false);
 			}
 		}
-
-		// for (let i in queue) {
-		// 	let visualizeDataOne = [ queue.length, i ];
-		// 	queue[i].emit('myPositionOne', visualizeDataOne);
-		// }
-		// io.sockets.emit('currentIndexOne', q);
-
-		// for (let i in queue2) {
-		// 	let visualizeDataTwo = [ queue.length, i ];
-		// 	queue2[i].emit('myPositionTwo', visualizeDataTwo);
-		// }
-		// io.sockets.emit('currentIndexTwo', q);
 	});
 });
 
 function next(advance) {
 	if (advance) {
 		q++;
-	}
 
-	if (q >= queue.length) {
-		allMessages.unshift(prompt);
-		io.sockets.emit('end', allMessages);
-		saveConversation(allMessages);
-		allMessages = [];
-		//write the function that push the data to the db
-		return;
+		if (q >= queue.length) {
+			allMessages.unshift(prompt);
+			io.sockets.emit('end', allMessages);
+			database.saveConversation(allMessages);
+			return;
+		}
 	}
 
 	console.log('NEXT UP IN FIRST QUEUE: ', q, queue.length);
@@ -273,15 +180,13 @@ function next(advance) {
 function next2(advance) {
 	if (advance) {
 		q2++;
-	}
 
-	if (q2 >= queue2.length) {
-		allMessages2.unshift(prompt2);
-		io.sockets.emit('endTwo', allMessages2);
-		saveConversation(allMessages2);
-		allMessages2 = [];
-		//write the function that push the data to the db
-		return;
+		if (q2 >= queue2.length) {
+			allMessages2.unshift(prompt2);
+			io.sockets.emit('endTwo', allMessages2);
+			database.saveConversation(allMessages2);
+			return;
+		}
 	}
 
 	console.log('NEXT UP IN SECOND QUEUE: ', q2, queue2.length);

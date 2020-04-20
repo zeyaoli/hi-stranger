@@ -1,23 +1,12 @@
-const express = require('express');
+// const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
-
-const viewsURL = path.resolve(`${__dirname}/public`);
-
-require('dotenv').config({ path: '.env' });
-// const MONGO_URL = process.env.MONGO_URL;
-const app = express();
-app.use(express.static(viewsURL));
-app.use(express.json());
-
-mongoose.connect(
-	'mongodb+srv://admin:SIB!crip7flis@hi-strangers-db-mzlay.gcp.mongodb.net/test?retryWrites=true&w=majority',
-	{ useNewUrlParser: true }
-);
+require('dotenv').config();
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true });
 
 const db = mongoose.connection;
-db.on = ('error', console.error.bind(console, 'connection error:'));
+db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
 	console.log('connected to database');
 });
@@ -29,26 +18,17 @@ const ConversationSchema = mongoose.Schema({
 
 const Conversation = mongoose.model('Conversation', ConversationSchema);
 
-// let allMessages = [ 'this is the first messsage', 'this is the second one', 'this is the third one' ];
-
-// const newConv = new Conversation({ conversations: allMessages });
-
-// console.log(newConv);
-// let conversationObject = {
-// 	conversations : allMessages
-// };
-
 const handleError = (err) => {
 	console.log(err);
 };
 
-const getConversation = (cb) => {
+function getConversation(cb) {
 	Conversation.find().exec((err, docs) => {
 		cb(err, docs);
 	});
-};
+}
 
-const saveConversation = (messages) => {
+function saveConversation(messages) {
 	let conversationObject = {
 		conversations : messages
 	};
@@ -56,25 +36,16 @@ const saveConversation = (messages) => {
 	Conversation.create(conversationObject, function(err, newConversation) {
 		if (err) return handleError(err);
 	});
-};
+}
 
-// let newCon = saveConversation(conversationObject);
-// console.log(newCon);
-
-app.get('/find', (req, res) => {
-	getConversation((err, docs) => {
-		res.json(docs);
-	});
-});
-
-app.delete('/find/:id', (req, res) => {
-	const id = req.params.id;
-
+function deleteById(id, cb) {
 	Conversation.findByIdAndDelete(id, (err, deletedObject) => {
-		res.json({ deletedObject: deletedObject });
+		cb(err, deletedObject);
 	});
-});
+}
 
-app.listen(process.env.PORT || 3000, () => {
-	console.log(`Server is listening on port 3000`);
-});
+module.exports = {
+	getConversation  : getConversation,
+	saveConversation : saveConversation,
+	deleteById       : deleteById
+};
