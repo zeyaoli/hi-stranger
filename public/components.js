@@ -18,9 +18,57 @@ function FrontPage() {
         When all players have joined, the first person can start the conversation.</p>
   </div>
     <button class="front-button" id="join">Join Room</button>
-    <button class="front-button" id="checkConvo">Previous Coversation</button>
+    <button class="front-button" id="prevConversation">Previous Conversation</button>
   </div>
 `;
+}
+
+function getConversationElement(conversationData) {
+	let singleConversation = document.getElementsByClassName('singleConversation');
+	for (let index in conversationData.conversations) {
+		let element = conversationData.conversations[index];
+		console.log(`index ${index} : ${element}`);
+		if (index == 0) {
+			singleConversation.innerHTML += `<h3 class="prompt> ${element} </h3>`;
+			//  `<h3 class="prompt> ${element} </h3>`;
+		} else {
+			if (index % 2 == 0) {
+				singleConversation.innerHTML += `<p class="evenMsgs"> ${element} </p>`;
+			} else {
+				singleConversation.innerHTML += `<p class="oddMsgs"> ${element} </p>`;
+			}
+		}
+	}
+}
+
+// ${getConversationElement(conversationData)}
+
+function Conversation(conversationData) {
+	return `<div class="singleConversation">
+      ${conversationData.conversations
+			.map((item, i) => {
+				// console.log(`index ${i}:${item}`);
+				return `${i == 0
+					? `<h3 class="prompt">${item}</h3>`
+					: i % 2 == 0 ? `<p class="evenMsgs"> ${item} </p>` : `<p class="oddMsgs"> ${item} </p>`}`;
+			})
+			.join('')}
+  </div>
+  `;
+}
+
+function Conversations(conversation) {
+	return `<div class="conversations">
+              ${conversation.map(Conversation).join('')}
+          </div>
+  `;
+}
+
+function PreviousConversationPage(conversationData) {
+	return `
+    ${Title()}
+    ${Conversations(conversationData)}
+  `;
 }
 
 function WaitingPage() {

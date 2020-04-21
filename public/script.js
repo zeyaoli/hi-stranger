@@ -87,6 +87,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
 		gameState = 'waiting';
 		pageChange();
 	};
+
+	document.getElementById('prevConversation').onclick = () => {
+		fetch('find')
+			.then((res) => res.json())
+			.then((data) => {
+				// console.log(data);
+				document.getElementById('root').innerHTML = PreviousConversationPage(data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
 });
 
 // first prompt
@@ -251,20 +263,6 @@ socket.on('end', function(data) {
 				contentOne.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
 			}
 		}
-
-		/*
-    ended++;
-    
-    if (ended == 2) {
-      contentOne.InnerHTML += `<button id="reset">Reset</button>`;
-      
-      document.getElementById("reset").addEventListener("click", function() {
-        socket.emit("remove");
-
-        window.location.assign("https://hi-strangers.glitch.me/");
-      });
-    }
-    */
 	}
 });
 
@@ -283,20 +281,6 @@ socket.on('endTwo', function(data) {
 				contentTwo.innerHTML += `<p class = "oddMsgs"> ${element} </p>`;
 			}
 		}
-
-		/* 
-    ended++;
-    
-    if (ended == 2) {
-      contentTwo.InnerHTML += `<button id="reset">Reset</button>`;
-      
-      document.getElementById("reset").addEventListener("click", function() {
-        socket.emit("remove");
-
-        window.location.assign("https://hi-strangers.glitch.me/");
-      });
-    }
-    */
 	}
 });
 

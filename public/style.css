@@ -199,3 +199,8 @@ p {
 .current-player {
 	background: gold;
 }
+
+.singleConversation {
+	display: flex;
+	flex-direction: column;
+}
